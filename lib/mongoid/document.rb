@@ -193,6 +193,12 @@ module Mongoid
       new_errors.copy!(errors)
       became.instance_variable_set(:@errors, new_errors)
       became.instance_variable_set(:@new_record, new_record?)
+      # The document was constructed as new, collecting pre-create change
+      # markers. Drop them when the copied state is that of a persisted
+      # document: its pending changes were all tracked after the document
+      # was persisted, and stale markers would let in-place changes to
+      # readonly attributes bypass the dirty filter.
+      became.instance_variable_set(:@pre_create_changed_attributes, nil) unless new_record?
       became.instance_variable_set(:@destroyed, destroyed?)
       became.changed_attributes[klass.discriminator_key] = self.class.discriminator_value
       became[klass.discriminator_key] = klass.discriminator_value
@@ -203,6 +209,10 @@ module Mongoid
           relation = became.__send__(name)
           Array.wrap(relation).each do |r|
             r.instance_variable_set(:@new_record, new_record?)
+            # The embedded documents were also constructed as new; drop
+            # their pre-create change markers when they are marked as
+            # persisted, as is done for the parent document.
+            r.instance_variable_set(:@pre_create_changed_attributes, nil) unless new_record?
           end
         end
       end
