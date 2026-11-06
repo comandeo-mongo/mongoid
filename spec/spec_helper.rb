@@ -29,6 +29,14 @@ def database_id_alt
   "mongoid_test_alt"
 end
 
+def test_model(name: 'TestModel', &block)
+  Class.new.tap do |klass|
+    klass.define_singleton_method(:name) { name.to_s }
+    klass.include Mongoid::Document
+    klass.class_eval(&block) if block_given?
+  end
+end
+
 begin
   require 'mrss/cluster_config'
   require 'support/client_registry'
