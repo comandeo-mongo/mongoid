@@ -188,5 +188,14 @@ module Mongoid
       # @return [ Object ] The serialized default.
       def serialize_default(object); object; end
     end
+
+    # Represents a foreign key field whose value is encrypted.
+    #
+    # A belongs_to association stores its key in a single value, so it can be
+    # encrypted like any other field. The encryption options of the field
+    # declared before the association are preserved here.
+    class EncryptedForeignKey < ForeignKey
+      include EncryptionOptions
+    end
   end
 end
