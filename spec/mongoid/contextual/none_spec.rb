@@ -53,6 +53,14 @@ describe Mongoid::Contextual::None do
     end
   end
 
+  describe '#destroy' do
+    it 'returns zero and destroys nothing' do
+      expect(context.destroy).to eq(0)
+      expect(context.destroy_all).to eq(0)
+      expect(Band.where(name: 'Depeche Mode').count).to eq(1)
+    end
+  end
+
   describe "#pluck" do
     it "returns an empty array" do
       expect(context.pluck(:id)).to eq([])
@@ -68,6 +76,16 @@ describe Mongoid::Contextual::None do
   describe "#tally" do
     it "returns an empty hash" do
       expect(context.tally(:id)).to eq({})
+    end
+  end
+
+  describe '#update' do
+    it 'returns false without attributes and nil with them, updating nothing' do
+      expect(context.update).to be(false)
+      expect(context.update(name: 'The Cure')).to be_nil
+      expect(context.update_all).to be(false)
+      expect(context.update_all(name: 'The Cure')).to be_nil
+      expect(Band.where(name: 'Depeche Mode').first.name).to eq('Depeche Mode')
     end
   end
 

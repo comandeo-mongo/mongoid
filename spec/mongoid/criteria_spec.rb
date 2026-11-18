@@ -1507,6 +1507,23 @@ describe Mongoid::Criteria do
     it "returns the same criteria" do
       expect(merged).to equal(criteria)
     end
+
+    context 'when merging a none criteria into a criteria with a cached context' do
+      let(:criteria) { Band.where(name: 'Depeche Mode') }
+      let(:mergeable) { Band.none }
+
+      before do
+        Band.create!(name: 'Depeche Mode')
+      end
+
+      it 'does not use the cached context' do
+        expect(criteria.count).to eq(1)
+
+        merged
+
+        expect(criteria.count).to eq(0)
+      end
+    end
   end
 
   describe "#min" do
