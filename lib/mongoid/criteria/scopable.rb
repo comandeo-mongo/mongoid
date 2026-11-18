@@ -16,9 +16,13 @@ module Mongoid
       #
       # @return [ Criteria ] The criteria.
       def apply_default_scope
+        explicit_none = none_state == true
         klass.without_default_scope do
           merge!(klass.default_scoping.call)
         end
+        # A none coming from the default scope is not an explicit none, so it
+        # may be removed by unscoping.
+        @none = :default if !explicit_none && @none
         self.scoping_options = true, false
       end
 
@@ -103,7 +107,9 @@ module Mongoid
         crit = clone
         unless unscoped?
           crit.scoping_options = false, true
-          crit.selector.clear; crit.options.clear
+          crit.selector.clear
+          crit.options.clear
+          crit.send(:clear_default_scope_none)
         end
         crit
       end

@@ -54,10 +54,17 @@ describe Mongoid::Contextual::None do
     end
   end
 
-  describe "#pluck" do
+  describe '#destroy' do
+    it 'returns zero and destroys nothing' do
+      expect(context.destroy).to eq(0)
+      expect(context.destroy_all).to eq(0)
+      expect(Band.where(name: 'Depeche Mode').count).to eq(1)
+    end
+  end
 
-    context "when plucking one field" do
-      it "returns an empty array" do
+  describe '#pluck' do
+    context 'when plucking one field' do
+      it 'returns an empty array' do
         expect(context.pluck(:id)).to eq([])
       end
     end
@@ -81,8 +88,18 @@ describe Mongoid::Contextual::None do
     end
   end
 
-  describe "#first" do
-    it "returns nil" do
+  describe '#update' do
+    it 'returns false without attributes and nil with them, updating nothing' do
+      expect(context.update).to be(false)
+      expect(context.update(name: 'The Cure')).to be_nil
+      expect(context.update_all).to be(false)
+      expect(context.update_all(name: 'The Cure')).to be_nil
+      expect(Band.where(name: 'Depeche Mode').first.name).to eq('Depeche Mode')
+    end
+  end
+
+  describe '#first' do
+    it 'returns nil' do
       expect(context.first).to be_nil
     end
 
